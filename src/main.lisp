@@ -76,9 +76,12 @@ DATA is a vector of octets from an SRV DNS response."
             (getf answer :port)))))
 
 (defmethod connect_login ((conn connection))
-  ;; TODO add restart
-  (discover_hostname_port conn)
-  )
+  (restart-case
+      (discover_hostname_port conn)
+    (set-defaults ()
+      :report "Set default hostname and port"
+      (setf (port conn) 5222)
+      (setf (hostname conn) (domain conn)))))
 
 (defun make-connection (jid password)
   (let ((user/host (uiop:split-string jid :separator "@")))
