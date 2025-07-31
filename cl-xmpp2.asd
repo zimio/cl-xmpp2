@@ -4,7 +4,9 @@
   :license ""
   :depends-on ("plump"
                "lquery"
+               "usocket`"
                "dns-client"
+               "flexi-streams"
                "plump-sexp")
   :components ((:module "src"
                 :components

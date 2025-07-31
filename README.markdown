@@ -1,5 +1,5 @@
 # Cl-Xmpp2
 
-## Usage
+## Work in progress ⚠️
 
 ## Installation

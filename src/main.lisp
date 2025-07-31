@@ -32,9 +32,18 @@
    (port
     :accessor port
     :initform nil)
+   (connected?
+    :accessor connected?
+    :initform nil)
+   (stream
+    :accessor stream
+    :initform nil)
    (password
     :initarg :password
     :accessor password)))
+
+(defconstant +xml-doc+ "<?xml version='1.0'?>")
+(defconstant +xml-stream+ "<stream:stream from='~a' to='~a' version='1.0' xml:lang='en' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams'>")
 
 (defun decode-srv-record (data)
   "Decode a raw SRV record (vector of bytes) into a plist.
@@ -75,13 +84,30 @@ DATA is a vector of octets from an SRV DNS response."
       (setf (port conn)
             (getf answer :port)))))
 
+(defmethod stream_negotiation ((conn connection))
+  (write-line +xml-doc+ (stream conn))
+  (format (stream conn) +xml-stream+ (jid conn) (domain conn))
+  (finish-output (stream conn))
+  ;; receive response from server
+  ;; return list of supported auth
+  )
+
 (defmethod connect_login ((conn connection))
   (restart-case
       (discover_hostname_port conn)
     (set-defaults ()
       :report "Set default hostname and port"
       (setf (port conn) 5222)
-      (setf (hostname conn) (domain conn)))))
+      (setf (hostname conn) (domain conn))))
+  (setf (socket conn)
+        (usocket:socket-connect (hostname conn) (port conn)))
+  (setf (stream conn)
+        (flexi-streams:make-flexi-stream (usocket:socket-stream (socket conn))
+                                         :external-format :utf-16))
+  (setf (connected? conn) t)
+  )
+
+
 
 (defun make-connection (jid password)
   (let ((user/host (uiop:split-string jid :separator "@")))
