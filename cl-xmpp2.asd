@@ -4,7 +4,7 @@
   :license ""
   :depends-on ("plump"
                "lquery"
-               "usocket`"
+               "usocket"
                "dns-client"
                "flexi-streams"
                "plump-sexp")

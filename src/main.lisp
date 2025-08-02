@@ -35,8 +35,8 @@
    (connected?
     :accessor connected?
     :initform nil)
-   (stream
-    :accessor stream
+   (socket-stream
+    :accessor socket-stream
     :initform nil)
    (password
     :initarg :password
@@ -85,9 +85,9 @@ DATA is a vector of octets from an SRV DNS response."
             (getf answer :port)))))
 
 (defmethod stream_negotiation ((conn connection))
-  (write-line +xml-doc+ (stream conn))
-  (format (stream conn) +xml-stream+ (jid conn) (domain conn))
-  (finish-output (stream conn))
+  (write-line +xml-doc+ (socket-stream conn))
+  (format (socket-stream conn) +xml-stream+ (jid conn) (domain conn))
+  (finish-output (socket-stream conn))
   ;; receive response from server
   ;; return list of supported auth
   )
@@ -101,7 +101,7 @@ DATA is a vector of octets from an SRV DNS response."
       (setf (hostname conn) (domain conn))))
   (setf (socket conn)
         (usocket:socket-connect (hostname conn) (port conn)))
-  (setf (stream conn)
+  (setf (socket-stream conn)
         (flexi-streams:make-flexi-stream (usocket:socket-stream (socket conn))
                                          :external-format :utf-16))
   (setf (connected? conn) t)
